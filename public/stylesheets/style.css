@@ -1,6 +1,21 @@
 body {
-  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+header {
+  background-color: rgb(0, 189, 189);
+  font-family: 'Shippori Antique B1', sans-serif;
+  font-size: 5rem;
+  font-weight: 500;
+}
+
+main, footer { 
+  padding: 30px;
+}
+
+footer {
+  color: gray;
+  text-align: center;
 }
 
 a {
