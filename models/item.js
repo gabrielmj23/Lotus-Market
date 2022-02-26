@@ -9,7 +9,8 @@ var ItemSchema = new Schema(
         description: {type: String, required: true},
         category: {type: Schema.Types.ObjectId, ref: 'Category', required: true},
         price: {type: Number, min: 0.01, required: true},
-        in_stock: {type: Number, min: 0, required: true}
+        in_stock: {type: Number, min: 0, required: true},
+        exp_date: {type: Date}
     }
 );
 
