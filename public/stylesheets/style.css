@@ -9,6 +9,11 @@ header {
   font-weight: 500;
 }
 
+.nav-ele {
+  font-size: 17px;
+  padding-bottom: 10px;
+}
+
 main, footer { 
   padding: 30px;
 }
