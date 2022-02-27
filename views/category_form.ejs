@@ -1,0 +1,23 @@
+<%- include("partials/header"); %>
+<h1><%- title.slice(14) %></h1>
+<form method="post" action="">
+    <div class="form-group mb-3">
+        <% var c_name = (typeof category === 'undefined') ? '' : category.name; %>
+        <label for="name">Name: </label>
+        <input id="name" class="form-control" type="text" placeholder="Category name" name="name" required="true" value="<%- c_name %>">
+    </div>
+    <div class="form-group mb-3">
+        <% var c_desc = (typeof category === 'undefined') ? '' : category.description %>
+        <label for="description">Description: </label>
+        <textarea id="description" class="form-control" type="textarea" placeholder="Category description" name="description" required="true"><%- c_desc %></textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">Submit</button>
+</form>
+<% if (typeof errors !== 'undefined') { %>
+    <ul>
+        <% errors.forEach(error => { %>
+            <li class="text-danger"><%- error.msg %></li>
+        <% }); %>
+    </ul>
+<% } %>
+<%- include("partials/footer"); %>
