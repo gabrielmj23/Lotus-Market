@@ -1,0 +1,13 @@
+<%- include("partials/header"); %>
+<h1><%- item.name %></h1>
+<hr>
+<p><%- item.category.name %>, <%- item.in_stock %> in stock</p>
+<p><strong>Description: </strong><%- item.description %></p>
+<p>For sale at $<%- item.price %></p>
+<% if (item.exp_date) { %>
+    <p>Expires on <span class="text-danger"><%- item.exp_date_formatted %></span></p>
+<% } %>
+<hr>
+<p><a href="<%= item.url + '/update' %>">Update item</a></p>
+<p><a href="<%= item.url + '/delete' %>">Delete item</a></p>
+<%- include("partials/footer"); %>

@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+const { DateTime } = require('luxon');
 
 var Schema = mongoose.Schema;
 
@@ -17,6 +18,10 @@ var ItemSchema = new Schema(
 // Virtual for item's URL
 ItemSchema.virtual('url').get(function() {
     return '/catalog/item/' + this._id;
+});
+
+ItemSchema.virtual('exp_date_formatted').get(function() {
+    return DateTime.fromJSDate(this.exp_date).toLocaleString(DateTime.DATE_MED);
 });
 
 // Export model

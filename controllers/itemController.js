@@ -33,7 +33,19 @@ exports.item_list = function(req, res, next) {
 
 // Display item's details
 exports.item_detail = function(req, res, next) {
-
+    Item.findById(req.params.id)
+    .populate('category')
+    .exec(function(err, results) {
+        if (err) { return next(err); }
+        // Item not found
+        if (results == null) {
+            var err = new Error('Item not found');
+            err.status = 404;
+            return next(err);
+        }
+        // Render with item data
+        res.render('item_detail', {title: 'Lotus Market | ' + results.name, item: results});
+    });
 };
 
 // Display item creation form
