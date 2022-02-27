@@ -1,8 +1,22 @@
 var Item =  require('../models/item');
+var Category = require('../models/category');
+var async = require('async');
 
 // Display home page
 exports.index = function(req, res, next) {
-    res.render('index', {title: 'Lotus Market'});
+    // Get number of categories and items
+    async.parallel({
+        categories: function(callback) {
+            Category.countDocuments({}, callback);
+        },
+        items: function(callback) {
+            Item.countDocuments({}, callback);
+        }
+    }, function(err, results) {
+        if (err) { return next(err); }
+        // Render home page with results
+        res.render('index', {title: 'Lotus Market', categories: results.categories, items: results.items});
+    });
 };
 
 // Display list of items
