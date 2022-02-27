@@ -1,0 +1,15 @@
+<%- include("partials/header"); %>
+<h1>Items</h1>
+<ul>
+    <% if (item_list.length > 0) { %>
+        <% item_list.forEach(item => { %>
+            <li>
+                <a href="<%= item.url %>" style="font-size:18px;"><%- item.name %></a>
+                <p><%- item.category.name %>, <%- item.in_stock %> in stock</p>
+            </li>
+        <% }); %>
+    <% } else { %>
+        <li>There are no items</li>
+    <% } %>
+</ul>
+<%- include("partials/footer"); %>

@@ -1,0 +1,14 @@
+<%- include("partials/header"); %>
+<h1>Categories</h1>
+<ul>
+    <% if (category_list.length > 0) { %>
+        <% category_list.forEach(category => { %>
+            <li class="mb-3">
+                <a href="<%= category.url %>" style="font-size:18px;"><%- category.name %></a>
+            </li>
+        <% }); %>
+    <% } else { %>
+        <li>There are no categories</li>
+    <% } %>
+</ul>
+<%- include("partials/footer"); %>

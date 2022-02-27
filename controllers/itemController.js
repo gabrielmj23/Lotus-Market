@@ -21,7 +21,14 @@ exports.index = function(req, res, next) {
 
 // Display list of items
 exports.item_list = function(req, res, next) {
-
+    Item.find({}, 'name category in_stock')
+    .sort({name: 1})
+    .populate('category')
+    .exec(function(err, results) {
+        if (err) { return next(err); }
+        // Render item list
+        res.render('item_list', {title: 'Lotus Market | Items', item_list: results});
+    });
 };
 
 // Display item's details

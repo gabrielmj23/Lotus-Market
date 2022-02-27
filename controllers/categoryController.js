@@ -2,7 +2,13 @@ var Category = require('../models/category');
 
 // Display list of categories
 exports.category_list = function(req, res, next) {
-
+    Category.find({}, 'name')
+    .sort({name: 1})
+    .exec(function(err, results) {
+        if (err) { return next(err); }
+        // Render category list
+        res.render('category_list', {title: 'Lotus Market | Categories', category_list: results});
+    });
 };
 
 // Display category's details
