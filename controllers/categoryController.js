@@ -1,4 +1,6 @@
 var Category = require('../models/category');
+var Item = require('../models/item');
+var async = require('async');
 
 // Display list of categories
 exports.category_list = function(req, res, next) {
@@ -13,7 +15,24 @@ exports.category_list = function(req, res, next) {
 
 // Display category's details
 exports.category_detail = function(req, res, next) {
-
+    async.parallel({
+        category: function(callback) {
+            Category.findById(req.params.id).exec(callback);
+        },
+        category_items: function(callback) {
+            Item.find({'category': req.params.id}).exec(callback);
+        }
+    }, function(err, results) {
+        if (err) { return next(err); }
+        // Category not found
+        if (results.category == null) {
+            var err = new Error('Category not found');
+            err.status = 404;
+            return next(err);
+        }
+        // Render with category data and items from this category
+        res.render('category_detail', {title: 'Lotus Market | ' + results.category.name, category: results.category, items: results.category_items});
+    });
 };
 
 // Display category creation form

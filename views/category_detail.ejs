@@ -1,0 +1,23 @@
+<%- include("partials/header"); %>
+<h1><%- category.name %></h1>
+<hr>
+<p><strong>Description: </strong><%- category.description %></p>
+<% if (items.length > 0) { %>
+    <div style="margin-left: 20px; margin-top: 20px;">
+        <h4>Items under this category</h4>
+        <ul>
+            <% items.forEach(item => { %>
+                <li>
+                    <a href="<%= item.url %>" style="font-size: 18px;"><%- item.name %></a>
+                    <p><%- item.in_stock %> in stock</p>
+                </li>
+            <% }); %>
+        </ul>
+    </div>
+<% } else { %>
+    <p class="text-danger">No items under this category</p>
+<% } %>
+<hr>
+<p><a href="<%= category.url + '/update' %>">Update this category</a></p>
+<p><a href="<%= category.url + '/delete' %>">Delete this category</a></p>
+<%- include("partials/footer"); %>
