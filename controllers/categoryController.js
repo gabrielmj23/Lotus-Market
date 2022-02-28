@@ -75,12 +75,54 @@ exports.category_create_post = [
 
 // Display category deletion form
 exports.category_delete_get = function(req, res, next) {
-
+    // Find category info and items with this category
+    async.parallel({
+        category: function(callback) {
+            Category.findById(req.params.id).exec(callback);
+        },
+        items: function(callback) {
+            Item.find({'category': req.params.id}).sort({name: 1}).exec(callback);
+        }
+    }, function(err, results) {
+        if (err) { return next(err); }
+        // Category not found
+        if (results.category == null) {
+            var err = new Error('Category not found');
+            err.status = 404;
+            return next(err);
+        }
+        // Render with needed data
+        res.render('category_delete', {title: 'Lotus Market | Delete Category', category: results.category, items: results.items});
+    });
 };
 
 // Handle category deletion
 exports.category_delete_post = function(req, res, next) {
-
+    // Find category info and items under this category
+    async.parallel({
+        category: function(callback) {
+            Category.findById(req.body.categoryid).exec(callback);
+        },
+        items: function(callback) {
+            Item.find({'category': req.body.categoryid}).sort({name: 1}).exec(callback);
+        }
+    }, function(err, results) {
+        if (err) { return next(err); }
+        // Success
+        if (results.items.length > 0) {
+            // There are items left to delete
+            res.render('category_delete', {title: 'Lotus Market | Delete Category', category: results.category, items: results.items});
+            return;
+        }
+        else {
+            // Can delete with no issues
+            Category.findByIdAndRemove(req.body.categoryid, function deleteCategory(err) {
+                if (err) { return next(err); }
+                // Success, redirect to category list
+                res.redirect('/catalog/categories');
+            });
+        }
+    });
 };
 
 // Display category update form

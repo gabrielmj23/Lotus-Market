@@ -1,0 +1,25 @@
+<%- include("partials/header"); %>
+<h1><%- title.slice(14); %></h1>
+<h6><strong>Name: </strong><%- category.name %></h6>
+<h6><strong>Description: </strong><%- category.description %></h6>
+<% if (items.length > 0) { %>
+    <p class="text-danger"><strong>Please delete the following items before deleting this category</strong></p>
+    <hr>
+    <div style="margin-top: 20px; margin-left: 20px;">
+        <h4>Items</h4>
+        <dl>
+            <% items.forEach(item => { %>
+                <dt><a href="<%- item.url %>"><%- item.name %></a></dt>
+                <dl><%- item.in_stock %> in stock</dl>
+            <% }); %>
+        </dl>
+    </div>
+<% } else { %>
+    <form method="post" action="">
+        <div class="form-group">
+            <input id="categoryid" class="form-control" type="hidden" name="categoryid" required="true" value="<%- category._id %>">
+        </div>
+        <button class="btn btn-danger" type="submit">Delete</button>
+    </form>
+<% } %>
+<%- include("partials/footer"); %>

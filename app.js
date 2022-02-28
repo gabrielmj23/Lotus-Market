@@ -10,6 +10,8 @@ var catalogRouter = require('./routes/catalog');
 
 var app = express();
 
+require('dotenv').config();
+
 // Set up mongoose connection
 var mongoose = require('mongoose');
 var dev_db = 'mongodb+srv://dev:flF19EX4yjQsBHkO@lotus-market-dev.yrzhy.mongodb.net/LotusMarket?retryWrites=true&w=majority';
