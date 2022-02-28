@@ -1,0 +1,12 @@
+<%- include("partials/header"); %>
+<h1><%- title.slice(14); %></h1>
+<h6><strong>Name: </strong><%- item.name %></h6>
+<h6><strong>Description: </strong><%- item.description %></h6>
+<p class="text-danger"><strong>Are you sure you want to delete this item?</strong></p>
+<form method="post" action="">
+    <div class="form-group">
+        <input id="itemid" class="form-control" type="hidden" name="itemid" required="true" value="<%- item._id %>">
+    </div>
+    <button class="btn btn-danger" type="submit">Delete</button>
+</form>
+<%- include("partials/footer"); %>

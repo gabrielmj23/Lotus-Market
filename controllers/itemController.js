@@ -108,12 +108,27 @@ exports.item_create_post = [
 
 // Display item deletion form
 exports.item_delete_get = function(req, res, next) {
-
+    Item.findById(req.params.id, 'name description')
+    .exec(function(err, results) {
+        if (err) { return next(err); }
+        // No results
+        if (results == null) {
+            var err = new Error('Item not found');
+            err.status = 404;
+            return next(err);
+        }
+        // Render page with basic item info
+        res.render('item_delete', {title: 'Lotus Market | Delete Item', item: results});
+    });
 };
 
 // Handle item deletion
 exports.item_delete_post = function(req, res, next) {
-
+    Item.findByIdAndRemove(req.body.itemid, function deleteItem(err) {
+        if (err) { return next(err); }
+        // Success, redirect to item list
+        res.redirect('/catalog/items');
+    });
 };
 
 // Display item update form
