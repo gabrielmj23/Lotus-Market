@@ -44,8 +44,8 @@ exports.category_create_get = function(req, res, next) {
 // Handle category creation
 exports.category_create_post = [
     // Validate and sanitize
-    body('name').trim().isLength({min: 1}).withMessage('Name must not be empty.').isAlphanumeric().withMessage('Name must be alphanumeric.').escape(),
-    body('description').trim().isLength({min: 1}).withMessage('Description must not be empty').isAlphanumeric().withMessage('Description must be alphanumeric.').escape(),
+    body('name').trim().isLength({min: 1}).withMessage('Name must not be empty.').isLength({max: 50}).withMessage('Name must be no longer than 50 characters').isAlphanumeric('en-US', {ignore: '\s'}).withMessage('Name must be alphanumeric.').escape(),
+    body('description').trim().isLength({min: 1}).withMessage('Description must not be empty').isAlphanumeric('en-US', {ignore: '\s'}).withMessage('Description must be alphanumeric.').escape(),
 
     // Process request
     (req, res, next) => {

@@ -1,6 +1,7 @@
 var Item =  require('../models/item');
 var Category = require('../models/category');
 var async = require('async');
+const { body, validationResult } = require('express-validator');
 
 // Display home page
 exports.index = function(req, res, next) {
@@ -50,13 +51,60 @@ exports.item_detail = function(req, res, next) {
 
 // Display item creation form
 exports.item_create_get = function(req, res, next) {
-
+    Category.find({}, 'name')
+    .sort({name: 1})
+    .exec(function(err, results) {
+        if (err) { return err; }
+        // Render item creation form with list of categories
+        res.render('item_form', {title: 'Lotus Market | Create Item', categories: results});
+    });
 };
 
 // Handle item creation
-exports.item_create_post = function(req, res, next) {
+exports.item_create_post = [
+    // Validate and sanitize input
+    body('name').trim().isLength({min: 1}).withMessage('Name must not be empty.').isAlphanumeric('en-US', {ignore: '\s'}).withMessage('Name must be alphanumeric.').escape(),
+    body('description').trim().isLength({min: 1}).withMessage('Description must not be empty.').isAlphanumeric('en-US', {ignore: '\s'}).withMessage('Description must be alphanumeric.').escape(),
+    body('category').escape(),
+    body('price', 'Price must be greater than 0.').isFloat({min: 0.01}),
+    body('in_stock', 'Amount in stock must be a non-negative integer.').isInt({min: 0}),
+    body('exp_date', 'Invalid date.').optional({checkFalsy: true}).isISO8601().toDate(),
 
-};
+    // Process request
+    (req, res, next) => {
+        // Extract validation errors
+        const errors = validationResult(req);
+
+        // Create new item
+        var item = new Item({
+            name: req.body.name,
+            description: req.body.description,
+            category: req.body.category,
+            price: req.body.price,
+            in_stock: req.body.in_stock,
+            exp_date: req.body.exp_date
+        });
+
+        if (!errors.isEmpty()) {
+            // There are errors. Get categories for rendering
+            Category.find({}, 'name')
+            .sort({name: 1})
+            .exec(function(err, results) {
+                if (err) { return next(err); }
+                // Render with error messages
+                res.render('item_form', {title: 'Lotus Market | Create Item', categories: results, item: item, errors: errors.array()});
+            });
+            return;
+        }
+        else {
+            // Save valid item
+            item.save(function(err) {
+                if (err) { return next(err); }
+                res.redirect(item.url);
+            });
+        }
+    }
+];
 
 // Display item deletion form
 exports.item_delete_get = function(req, res, next) {

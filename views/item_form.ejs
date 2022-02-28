@@ -1,0 +1,50 @@
+<%- include("partials/header"); %>
+<h1><%- title.slice(14) %></h1>
+<form method="post" action="">
+    <div class="form-group mb-3">
+        <% var i_name = (typeof item === 'undefined') ? '' : item.name; %>
+        <label for="name">Name: </label>
+        <input id="name" class="form-control" type="text" placeholder="Item name" name="name" required="true" value="<%- i_name %>">
+    </div>
+    <div class="form-group mb-3">
+        <% var i_desc = (typeof item === 'undefined') ? '' : item.description; %>
+        <label for="description">Description: </label>
+        <textarea id="description" class="form-control" type="textarea" placeholder="Item description" name="description" required="true"><%- i_desc %></textarea>
+    </div>
+    <div class="form-group mb-3">
+        <label for="category">Category: </label>
+        <select id="category" class="form-control" type="select" placeholder="Select category" name="category" required="true">
+            <% categories.forEach(category => { %>
+                <% if (typeof item === 'undefined' || item.category.toString() != category._id.toString()) { %>
+                    <option value="<%- category._id %>"><%- category.name %></option>
+                <% } else { %>
+                    <option value="<%- category._id %>" selected><%- category.name %></option>
+                <% } %> 
+            <% }); %>
+        </select>
+    </div>
+    <div class="form-group mb-3">
+        <% var i_price = (typeof item === 'undefined') ? '' : item.price; %>
+        <label for="price">Price: </label>
+        <input id="price" class="form-control" type="number" min="0.01" step="0.01" name="price" required="true" value="<%- i_price %>">
+    </div>
+    <div class="form-group mb-3">
+        <% var i_stock = (typeof item === 'undefined') ? '' : item.in_stock; %>
+        <label for="in_stock">Amount in stock: </label>
+        <input id="in_stock" class="form-control" type="number" min="0" name="in_stock" required="true" value="<%- i_stock %>">
+    </div>
+    <div class="form-group mb-3">
+        <% var i_date = (typeof item === 'undefined' || typeof item.exp_date === 'undefined') ? '' : item.exp_date_html; %>
+        <label for="exp_date">Expiration date (if applies): </label>
+        <input id="exp_date" class="form-control" type="date" name="exp_date" value="<%- i_date %>">
+    </div>
+    <button class="btn btn-primary" type="submit">Submit</button>
+</form>
+<% if (typeof errors !== 'undefined') { %>
+    <ul>
+        <% errors.forEach(error => { %>
+            <li class="text-danger"><%- error.msg %></li>
+        <% }); %>
+    </ul>
+<% } %>
+<%- include("partials/footer"); %>

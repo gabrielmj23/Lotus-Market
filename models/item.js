@@ -24,5 +24,9 @@ ItemSchema.virtual('exp_date_formatted').get(function() {
     return DateTime.fromJSDate(this.exp_date).toLocaleString(DateTime.DATE_MED);
 });
 
+ItemSchema.virtual('exp_date_html').get(function() {
+    return DateTime.fromJSDate(this.exp_date).toISODate(DateTime.DATE_SHORT);
+})
+
 // Export model
 module.exports = mongoose.model('Item', ItemSchema);
