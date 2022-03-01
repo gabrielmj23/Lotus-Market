@@ -2,6 +2,7 @@ var Item =  require('../models/item');
 var Category = require('../models/category');
 var async = require('async');
 const { body, validationResult } = require('express-validator');
+require('dotenv').config();
 
 // Display home page
 exports.index = function(req, res, next) {
@@ -123,13 +124,39 @@ exports.item_delete_get = function(req, res, next) {
 };
 
 // Handle item deletion
-exports.item_delete_post = function(req, res, next) {
-    Item.findByIdAndRemove(req.body.itemid, function deleteItem(err) {
-        if (err) { return next(err); }
-        // Success, redirect to item list
-        res.redirect('/catalog/items');
-    });
-};
+exports.item_delete_post = [
+    // Validate admin password
+    body('pw').isLength({min: 1}).withMessage('Admin password is required.').custom(pw => {
+        if (pw !== process.env.ADMIN_PW) {
+            throw new Error('Password is incorrect');
+        }
+        return true;
+    }),
+
+    // Process request
+    (req, res, next) => {
+        // Extract validation errors
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            // Password didn't match, render page again
+            Item.findById(req.params.id, 'name description')
+            .exec(function(err, results) {
+                if (err) { return next(err); }
+                res.render('item_delete', {title: 'Lotus Market | Delete Item', item: results, errors: errors.array()});
+            });
+            return;
+        }
+        else {
+            // All good, delete the item
+            Item.findByIdAndRemove(req.body.itemid, function deleteItem(err) {
+                if (err) { return next(err); }
+                // Success, redirect to item list
+                res.redirect('/catalog/items');
+            });
+        }
+    }
+];
 
 // Display item update form
 exports.item_update_get = function(req, res, next) {
@@ -150,7 +177,7 @@ exports.item_update_get = function(req, res, next) {
             return next(err);
         }
         // Render page with info
-        res.render('item_form', {title: 'Lotus Market | Update Item', item: results.item, categories: results.categories});
+        res.render('item_form', {title: 'Lotus Market | Update Item', item: results.item, categories: results.categories, danger: true});
     });
 };
 
@@ -163,6 +190,14 @@ exports.item_update_post = [
     body('price', 'Price must be greater than 0.').isFloat({min: 0.01}),
     body('in_stock', 'Amount in stock must be a non-negative integer.').isInt({min: 0}),
     body('exp_date', 'Invalid date.').optional({checkFalsy: true}).isISO8601().toDate(),
+
+    // Validate admin password
+    body('pw').isLength({min: 1}).withMessage('Admin password is required.').custom(pw => {
+        if (pw !== process.env.ADMIN_PW) {
+            throw new Error('Password is incorrect');
+        }
+        return true;
+    }),
 
     // Process request
     (req, res, next) => {
@@ -185,7 +220,7 @@ exports.item_update_post = [
             Category.find({}, 'name').sort({name: 1})
             .exec(function(err, results) {
                 if (err) { return next(err); }
-                res.render('item_form', {title: 'Lotus Market | Update Item', item: item, categories: results, errors: errors.array()});
+                res.render('item_form', {title: 'Lotus Market | Update Item', item: item, categories: results, danger: true, errors: errors.array()});
             });
             return;
         }

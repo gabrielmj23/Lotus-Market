@@ -11,6 +11,12 @@
         <label for="description">Description: </label>
         <textarea id="description" class="form-control" type="textarea" placeholder="Category description" name="description" required="true"><%- c_desc %></textarea>
     </div>
+    <% if (typeof danger !== 'undefined') { %>
+        <div class="form-group mb-3">
+            <label for="pw">Admin Password: </label>
+            <input id="pw" class="form-control" type="password" placeholder="Password" autocomplete="off" name="pw" required="true">
+        </div>
+    <% } %>
     <button class="btn btn-primary" type="submit">Submit</button>
 </form>
 <% if (typeof errors !== 'undefined') { %>

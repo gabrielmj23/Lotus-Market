@@ -2,6 +2,7 @@ var Category = require('../models/category');
 var Item = require('../models/item');
 var async = require('async');
 const { body, validationResult } = require('express-validator');
+require('dotenv').config();
 
 // Display list of categories
 exports.category_list = function(req, res, next) {
@@ -97,33 +98,52 @@ exports.category_delete_get = function(req, res, next) {
 };
 
 // Handle category deletion
-exports.category_delete_post = function(req, res, next) {
-    // Find category info and items under this category
-    async.parallel({
-        category: function(callback) {
-            Category.findById(req.body.categoryid).exec(callback);
-        },
-        items: function(callback) {
-            Item.find({'category': req.body.categoryid}).sort({name: 1}).exec(callback);
+exports.category_delete_post = [
+    // Validate admin password
+    body('pw').isLength({min: 1}).withMessage('Admin password is required.').custom(pw => {
+        if (pw !== process.env.ADMIN_PW) {
+            throw new Error('Password is incorrect');
         }
-    }, function(err, results) {
-        if (err) { return next(err); }
-        // Success
-        if (results.items.length > 0) {
-            // There are items left to delete
-            res.render('category_delete', {title: 'Lotus Market | Delete Category', category: results.category, items: results.items});
-            return;
-        }
-        else {
-            // Can delete with no issues
-            Category.findByIdAndRemove(req.body.categoryid, function deleteCategory(err) {
-                if (err) { return next(err); }
-                // Success, redirect to category list
-                res.redirect('/catalog/categories');
-            });
-        }
-    });
-};
+        return true;
+    }),
+
+    // Process request
+    (req, res, next) => {
+        // Get validation errors
+        const errors = validationResult(req);
+
+        // Find category info and items under this category
+        async.parallel({
+            category: function(callback) {
+                Category.findById(req.body.categoryid).exec(callback);
+            },
+            items: function(callback) {
+                Item.find({'category': req.body.categoryid}).sort({name: 1}).exec(callback);
+            }
+        }, function(err, results) {
+            if (err) { return next(err); }
+            // Success
+            if (results.items.length > 0) {
+                // There are items left to delete
+                res.render('category_delete', {title: 'Lotus Market | Delete Category', category: results.category, items: results.items});
+                return;
+            }
+            else if (!errors.isEmpty()) {
+                // Incorrect password
+                res.render('category_delete', {title: 'Lotus Market | Delete Category', category: results.category, items: results.items, errors: errors.array()});
+                return;
+            }
+            else {
+                // Can delete with no issues
+                Category.findByIdAndRemove(req.body.categoryid, function deleteCategory(err) {
+                    if (err) { return next(err); }
+                    // Success, redirect to category list
+                    res.redirect('/catalog/categories');
+                });
+            }
+        });
+    }
+];
 
 // Display category update form
 exports.category_update_get = function(req, res, next) {
@@ -138,7 +158,7 @@ exports.category_update_get = function(req, res, next) {
             return next(err);
         }
         // Render page with category data
-        res.render('category_form', {title: 'Lotus Market | Update Category', category: results});
+        res.render('category_form', {title: 'Lotus Market | Update Category', category: results, danger: true});
     });
 };
 
@@ -147,6 +167,14 @@ exports.category_update_post = [
     // Validate and sanitize
     body('name').trim().isLength({min: 1}).withMessage('Name must not be empty.').isLength({max: 50}).withMessage('Name must be no longer than 50 characters').isAlphanumeric('en-US', {ignore: '\s'}).withMessage('Name must be alphanumeric.').escape(),
     body('description').trim().isLength({min: 1}).withMessage('Description must not be empty').isAlphanumeric('en-US', {ignore: '\s'}).withMessage('Description must be alphanumeric.').escape(),
+
+    // Validate admin password
+    body('pw').isLength({min: 1}).withMessage('Admin password is required.').custom(pw => {
+        if (pw !== process.env.ADMIN_PW) {
+            throw new Error('Password is incorrect');
+        }
+        return true;
+    }),
 
     // Process request
     (req, res, next) => {
@@ -162,7 +190,7 @@ exports.category_update_post = [
 
         if (!errors.isEmpty()) {
             // There are errors, render page with error messages
-            res.render('category_form', {title: 'Lotus Market | Update Category', category: category, errors: errors.array()});
+            res.render('category_form', {title: 'Lotus Market | Update Category', category: category, danger: true, errors: errors.array()});
             return;
         }
         else {

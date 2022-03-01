@@ -15,11 +15,23 @@
         </dl>
     </div>
 <% } else { %>
+    <p class="text-danger"><strong>Are you sure you want to delete this category?</strong></p>
     <form method="post" action="">
-        <div class="form-group">
+        <div class="form-group mb-3">
             <input id="categoryid" class="form-control" type="hidden" name="categoryid" required="true" value="<%- category._id %>">
+        </div>
+        <div class="form-group mb-3">
+            <label for="pw">Admin Password: </label>
+            <input id="pw" class="form-control" type="password" placeholder="Password" autocomplete="off" name="pw" required="true">
         </div>
         <button class="btn btn-danger" type="submit">Delete</button>
     </form>
+<% } %>
+<% if (typeof errors !== 'undefined') { %>
+    <ul>
+        <% errors.forEach(error => { %>
+            <li class="text-danger"><%- error.msg %></li>
+        <% }); %>
+    </ul>
 <% } %>
 <%- include("partials/footer"); %>

@@ -38,6 +38,12 @@
         <label for="exp_date">Expiration date (if applies): </label>
         <input id="exp_date" class="form-control" type="date" name="exp_date" value="<%- i_date %>">
     </div>
+    <% if (typeof danger !== 'undefined') { %>
+        <div class="form-group mb-3">
+            <label for="pw">Admin Password: </label>
+            <input id="pw" class="form-control" type="password" placeholder="Password" autocomplete="off" name="pw" required="true">
+        </div>
+    <% } %>
     <button class="btn btn-primary" type="submit">Submit</button>
 </form>
 <% if (typeof errors !== 'undefined') { %>
