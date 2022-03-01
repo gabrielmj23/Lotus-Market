@@ -1,6 +1,6 @@
 <%- include("partials/header"); %>
 <h1><%- title.slice(14) %></h1>
-<form method="post" action="">
+<form method="post" action="" enctype="multipart/form-data">
     <div class="form-group mb-3">
         <% var i_name = (typeof item === 'undefined') ? '' : item.name; %>
         <label for="name">Name: </label>
@@ -10,6 +10,10 @@
         <% var i_desc = (typeof item === 'undefined') ? '' : item.description; %>
         <label for="description">Description: </label>
         <textarea id="description" class="form-control" type="textarea" placeholder="Item description" name="description" required="true"><%- i_desc %></textarea>
+    </div>
+    <div class="form-group mb-3">
+        <label for="itemimg">Item image (optional): </label>
+        <input id="itemimg" class="form-control" type="file" name="itemimg">
     </div>
     <div class="form-group mb-3">
         <label for="category">Category: </label>

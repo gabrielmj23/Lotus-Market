@@ -1,9 +1,34 @@
 var express = require('express');
 var router = express.Router();
 
+// Set up image storage with multer
+var multer = require('multer');
+var path = require('path');
+var storage_engine = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, '/public/images');
+    },
+    filename: function(req, file, cb) {
+        cb(null, Date.now() + '--' + file.originalname);
+    }
+});
+
+var upload = multer({
+    storage: storage_engine,
+    fileFilter: function(req, file, cb) {
+        var extension = path.extname(file.originalname);
+        if (!['png', 'jpg', 'jpeg'].includes(extension)) {
+            return cb(new Error('File not supported (only png, jpg or jpeg)'));
+        }
+        cb(null, true);
+    },
+    limits: {fileSize: 1000000}
+});
+
 // Require controllers
 var item_controller = require('../controllers/itemController');
 var category_controller = require('../controllers/categoryController');
+
 
 // ITEM ROUTES //
 
@@ -17,7 +42,7 @@ router.get('/items', item_controller.item_list);
 router.get('/item/create', item_controller.item_create_get);
 
 // POST request for item creation
-router.post('/item/create', item_controller.item_create_post);
+router.post('/item/create', upload.single('itemimg'), item_controller.item_create_post);
 
 // GET item's detail page
 router.get('/item/:id', item_controller.item_detail);
@@ -32,7 +57,7 @@ router.post('/item/:id/delete', item_controller.item_delete_post);
 router.get('/item/:id/update', item_controller.item_update_get);
 
 // POST request for item update
-router.post('/item/:id/update', item_controller.item_update_post);
+router.post('/item/:id/update', upload.single('itemimg'), item_controller.item_update_post);
 
 
 // CATEGORY ROUTES //

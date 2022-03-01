@@ -8,6 +8,7 @@ var ItemSchema = new Schema(
     {
         name: {type: String, required: true},
         description: {type: String, required: true},
+        imgname: {type: String},
         category: {type: Schema.Types.ObjectId, ref: 'Category', required: true},
         price: {type: Number, min: 0.01, required: true},
         in_stock: {type: Number, min: 0, required: true},
