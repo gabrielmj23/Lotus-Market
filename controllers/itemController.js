@@ -133,10 +133,69 @@ exports.item_delete_post = function(req, res, next) {
 
 // Display item update form
 exports.item_update_get = function(req, res, next) {
-
+    // Get item info and available categories
+    async.parallel({
+        item: function(callback) {
+            Item.findById(req.params.id).exec(callback);
+        },
+        categories: function(callback) {
+            Category.find({}, 'name').sort({name: 1}).exec(callback);
+        }
+    }, function(err, results) {
+        if (err) { return next(err); }
+        // Item not found
+        if (results.item == null) {
+            var err = new Error('Item not found');
+            err.status = 404;
+            return next(err);
+        }
+        // Render page with info
+        res.render('item_form', {title: 'Lotus Market | Update Item', item: results.item, categories: results.categories});
+    });
 };
 
 // Handle item update
-exports.item_update_post = function(req, res, next) {
+exports.item_update_post = [
+    // Validate and sanitize
+    body('name').trim().isLength({min: 1}).withMessage('Name must not be empty.').isAlphanumeric('en-US', {ignore: '\s'}).withMessage('Name must be alphanumeric.').escape(),
+    body('description').trim().isLength({min: 1}).withMessage('Description must not be empty.').isAlphanumeric('en-US', {ignore: '\s'}).withMessage('Description must be alphanumeric.').escape(),
+    body('category').escape(),
+    body('price', 'Price must be greater than 0.').isFloat({min: 0.01}),
+    body('in_stock', 'Amount in stock must be a non-negative integer.').isInt({min: 0}),
+    body('exp_date', 'Invalid date.').optional({checkFalsy: true}).isISO8601().toDate(),
 
-};
+    // Process request
+    (req, res, next) => {
+        // Extract validation errors
+        const errors = validationResult(req);
+
+        // Create new item object
+        var item = new Item({
+            name: req.body.name,
+            description: req.body.description,
+            category: req.body.category,
+            price: req.body.price,
+            in_stock: req.body.in_stock,
+            exp_date: req.body.exp_date,
+            _id: req.params.id
+        });
+
+        if (!errors.isEmpty()) {
+            // There are errors. Find list of categories before rendering
+            Category.find({}, 'name').sort({name: 1})
+            .exec(function(err, results) {
+                if (err) { return next(err); }
+                res.render('item_form', {title: 'Lotus Market | Update Item', item: item, categories: results, errors: errors.array()});
+            });
+            return;
+        }
+        else {
+            // Update item
+            Item.findByIdAndUpdate(req.params.id, item, {}, function(err, newItem) {
+                if (err) { return next(err); }
+                // Successful, redirect to new item page
+                res.redirect(newItem.url);
+            });
+        }
+    }
+];

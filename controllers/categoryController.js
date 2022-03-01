@@ -127,10 +127,51 @@ exports.category_delete_post = function(req, res, next) {
 
 // Display category update form
 exports.category_update_get = function(req, res, next) {
-
+    // Get category data
+    Category.findById(req.params.id)
+    .exec(function(err, results) {
+        if (err) { return next(err); }
+        // Category not found
+        if (results == null) {
+            var err = new Error('Category not found');
+            err.status = 404;
+            return next(err);
+        }
+        // Render page with category data
+        res.render('category_form', {title: 'Lotus Market | Update Category', category: results});
+    });
 };
 
 // Handle category update
-exports.category_update_post = function(req, res, next) {
+exports.category_update_post = [
+    // Validate and sanitize
+    body('name').trim().isLength({min: 1}).withMessage('Name must not be empty.').isLength({max: 50}).withMessage('Name must be no longer than 50 characters').isAlphanumeric('en-US', {ignore: '\s'}).withMessage('Name must be alphanumeric.').escape(),
+    body('description').trim().isLength({min: 1}).withMessage('Description must not be empty').isAlphanumeric('en-US', {ignore: '\s'}).withMessage('Description must be alphanumeric.').escape(),
 
-};
+    // Process request
+    (req, res, next) => {
+        // Extract validation errors
+        const errors = validationResult(req);
+
+        // Create new category object
+        var category = new Category({
+            name: req.body.name,
+            description: req.body.description,
+            _id: req.params.id
+        });
+
+        if (!errors.isEmpty()) {
+            // There are errors, render page with error messages
+            res.render('category_form', {title: 'Lotus Market | Update Category', category: category, errors: errors.array()});
+            return;
+        }
+        else {
+            // Update category
+            Category.findByIdAndUpdate(req.params.id, category, {}, function(err, newCategory) {
+                if (err) { return next(err); }
+                // Successful, redirect to updated category
+                res.redirect(newCategory.url);
+            });
+        }
+    }
+];
