@@ -29,6 +29,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Set up compression for all routes
+var compression = require('compression');
+app.use(compression());
+
+// Set up protection with helmet
+var helmet = require('helmet');
+app.use(helmet());
+
 app.use('/', indexRouter);
 app.use('/catalog', catalogRouter);
 
