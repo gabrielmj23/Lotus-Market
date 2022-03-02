@@ -3,6 +3,8 @@ var Category = require('../models/category');
 var async = require('async');
 const { body, validationResult } = require('express-validator');
 require('dotenv').config();
+var fs = require('fs');
+var path = require('path');
 
 // Display home page
 exports.index = function(req, res, next) {
@@ -114,7 +116,7 @@ exports.item_create_post = [
 
 // Display item deletion form
 exports.item_delete_get = function(req, res, next) {
-    Item.findById(req.params.id, 'name description')
+    Item.findById(req.params.id, 'name description imgname')
     .exec(function(err, results) {
         if (err) { return next(err); }
         // No results
@@ -145,7 +147,7 @@ exports.item_delete_post = [
 
         if (!errors.isEmpty()) {
             // Password didn't match, render page again
-            Item.findById(req.params.id, 'name description')
+            Item.findById(req.params.id, 'name description imgname')
             .exec(function(err, results) {
                 if (err) { return next(err); }
                 res.render('item_delete', {title: 'Lotus Market | Delete Item', item: results, errors: errors.array()});
@@ -156,6 +158,12 @@ exports.item_delete_post = [
             // All good, delete the item
             Item.findByIdAndRemove(req.body.itemid, function deleteItem(err) {
                 if (err) { return next(err); }
+                // Delete image from server
+                if (req.body.itemimg) {
+                    fs.unlinkSync(path.join(__dirname.slice(0, -12), 'public', 'images', req.body.itemimg), function(err) {
+                        if (err) { console.log(err); }
+                    });
+                }
                 // Success, redirect to item list
                 res.redirect('/catalog/items');
             });
