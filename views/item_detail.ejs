@@ -1,11 +1,29 @@
 <%- include("partials/header"); %>
 <h1><%- item.name %></h1>
 <hr>
-<p><%- item.category.name %>, <%- item.in_stock %> in stock</p>
-<p><strong>Description: </strong><%- item.description %></p>
-<p>For sale at $<%- item.price %></p>
-<% if (item.exp_date) { %>
-    <p>Expires on <span class="text-danger"><%- item.exp_date_formatted %></span></p>
+<% if (item.imgname) { %>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <p><%- item.category.name %>, <%- item.in_stock %> in stock</p>
+                <p><strong>Description: </strong><%- item.description %></p>
+                <p>For sale at $<%- item.price %></p>
+                <% if (item.exp_date) { %>
+                    <p>Expires on <span class="text-danger"><%- item.exp_date_formatted %></span></p>
+                <% } %>
+            </div>
+            <div class="col-sm-6">
+                <img src="../../images/<%- item.imgname %>" height="200" width="200">
+            </div>
+        </div>
+    </div>
+<% } else { %>
+    <p><%- item.category.name %>, <%- item.in_stock %> in stock</p>
+    <p><strong>Description: </strong><%- item.description %></p>
+    <p>For sale at $<%- item.price %></p>
+    <% if (item.exp_date) { %>
+        <p>Expires on <span class="text-danger"><%- item.exp_date_formatted %></span></p>
+    <% } %>
 <% } %>
 <hr>
 <p><a href="<%= item.url + '/update' %>">Update item</a></p>

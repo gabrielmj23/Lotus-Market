@@ -6,10 +6,10 @@ var multer = require('multer');
 var path = require('path');
 var storage_engine = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, '/public/images');
+        cb(null, path.join(__dirname.slice(0, -7), '/public/images'));
     },
     filename: function(req, file, cb) {
-        cb(null, Date.now() + '--' + file.originalname);
+        cb(null, new Date().toISOString().replace(/:/g, '-') + '--' + file.originalname);
     }
 });
 
@@ -17,7 +17,7 @@ var upload = multer({
     storage: storage_engine,
     fileFilter: function(req, file, cb) {
         var extension = path.extname(file.originalname);
-        if (!['png', 'jpg', 'jpeg'].includes(extension)) {
+        if (!['.png', '.jpg', '.jpeg'].includes(extension)) {
             return cb(new Error('File not supported (only png, jpg or jpeg)'));
         }
         cb(null, true);

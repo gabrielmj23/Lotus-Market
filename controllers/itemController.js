@@ -86,6 +86,11 @@ exports.item_create_post = [
             exp_date: req.body.exp_date
         });
 
+        // Add image if it was specified
+        if (req.hasOwnProperty('file')) {
+            item.imgname = req.file.filename;
+        }
+
         if (!errors.isEmpty()) {
             // There are errors. Get categories for rendering
             Category.find({}, 'name')
